@@ -5,10 +5,11 @@
          suppressJoinFailure="yes"
          xmlns:tns="http://proyectosd"
          xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
-         xmlns:ns="http://footballpool.dataaccess.eu" xmlns:ns0="http://www.webserviceX.NET">
+         xmlns:ns="http://footballpool.dataaccess.eu" xmlns:ns0="http://www.webserviceX.NET" xmlns:ns1="http://www.w3.org/2001/XMLSchema">
 
     <!-- Import the client WSDL -->
-	<bpel:import location="EstadioInfoProcesoArtifacts.wsdl" namespace="http://proyectosd" 
+    <bpel:import namespace="http://www.webserviceX.NET" location="globalweather.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
+    <bpel:import location="EstadioInfoProcesoArtifacts.wsdl" namespace="http://proyectosd" 
 	        importType="http://schemas.xmlsoap.org/wsdl/" />
          
     <!-- ================================================================= -->         
@@ -43,6 +44,7 @@
         <bpel:variable name="EstadioInfoPLRequest" messageType="ns:StadiumInfoSoapRequest"></bpel:variable>
         <bpel:variable name="GlobalWeatherResponse" messageType="ns0:GetWeatherSoapOut"></bpel:variable>
         <bpel:variable name="GlobalWeatherRequest" messageType="ns0:GetWeatherSoapIn"></bpel:variable>
+        <bpel:variable name="resultado" type="ns1:string"></bpel:variable>
     </bpel:variables>
 
     <!-- ================================================================= -->         
@@ -56,14 +58,14 @@
              Note: This maps to operation defined in EstadioInfoProceso.wsdl 
              -->
         
-        <bpel:receive name="receiveInput" partnerLink="client"
+        <bpel:receive name="solicitarNombreEstadio" partnerLink="client"
                  portType="tns:EstadioInfoProceso"
                  operation="process" variable="input"
                  createInstance="yes"/>
         
         <!-- Generate reply to synchronous request -->
         
-        <bpel:assign validate="no" name="Assign">
+        <bpel:assign validate="no" name="AssignEstadio">
             <bpel:copy>
                 <bpel:from><bpel:literal><tns:StadiumInfo xmlns:tns="http://footballpool.dataaccess.eu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tns:sStadiumName>tns:sStadiumName</tns:sStadiumName>
@@ -80,8 +82,8 @@
                 </bpel:to>
             </bpel:copy>
         </bpel:assign>
-        <bpel:invoke name="Invoke" partnerLink="EstadioInfoPL" operation="StadiumInfo" portType="ns:InfoSoapType" inputVariable="EstadioInfoPLRequest" outputVariable="EstadioInfoPLResponse"></bpel:invoke>
-        <bpel:assign validate="no" name="Assign1">
+        <bpel:invoke name="InvokeEstadioInfo" partnerLink="EstadioInfoPL" operation="StadiumInfo" portType="ns:InfoSoapType" inputVariable="EstadioInfoPLRequest" outputVariable="EstadioInfoPLResponse"></bpel:invoke>
+        <bpel:assign validate="no" name="AssignCiudad">
             <bpel:copy>
                 <bpel:from><bpel:literal><tns:GetWeather xmlns:tns="http://www.webserviceX.NET" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tns:CityName>tns:CityName</tns:CityName>
@@ -120,8 +122,15 @@
                 </bpel:to>
             </bpel:copy>
         </bpel:assign>
-        <bpel:invoke name="Invoke1" partnerLink="GlobalWeather" operation="GetWeather" portType="ns0:GlobalWeatherSoap" inputVariable="GlobalWeatherRequest" outputVariable="GlobalWeatherResponse"></bpel:invoke>
-        <bpel:assign validate="no" name="Assign2">
+        <bpel:invoke name="InvokeClimaCiudad" partnerLink="GlobalWeather" operation="GetWeather" portType="ns0:GlobalWeatherSoap" inputVariable="GlobalWeatherRequest" outputVariable="GlobalWeatherResponse"></bpel:invoke>
+        <bpel:assign validate="no" name="AssignResultado">
+            <bpel:copy>
+                <bpel:from><bpel:literal><tns:GetWeatherResponse xmlns:tns="http://www.webserviceX.NET" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tns:GetWeatherResult>tns:GetWeatherResult</tns:GetWeatherResult>
+</tns:GetWeatherResponse>
+</bpel:literal></bpel:from>
+                <bpel:to variable="resultado"></bpel:to>
+            </bpel:copy>
             <bpel:copy>
                 <bpel:from><bpel:literal><tns:EstadioInfoProcesoResponse xmlns:tns="http://proyectosd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tns:result>tns:result</tns:result>
@@ -133,17 +142,219 @@
                 <bpel:from part="parameters" variable="GlobalWeatherResponse">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns0:GetWeatherResult]]></bpel:query>
                 </bpel:from>
-                <bpel:to part="payload" variable="output">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:result]]></bpel:query>
+                <bpel:to variable="resultado">
+                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                        <![CDATA[ns0:GetWeatherResult]]>
+                    </bpel:query>
                 </bpel:to>
             </bpel:copy>
         </bpel:assign>
-        <bpel:reply name="replyOutput" 
-               partnerLink="client"
-               portType="tns:EstadioInfoProceso"
-               operation="process" 
-               variable="output"
-               />
+        <bpel:if name="If">
+            <bpel:condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[contains(string($resultado), "clear")]]></bpel:condition>
+            <bpel:sequence>
+                <bpel:assign validate="no" name="AssignBuenClima">
+                    <bpel:copy>
+                        <bpel:from><bpel:literal><tns:EstadioInfoProcesoResponse xmlns:tns="http://proyectosd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tns:result>tns:result</tns:result>
+</tns:EstadioInfoProcesoResponse>
+</bpel:literal></bpel:from>
+                        <bpel:to variable="output" part="payload"></bpel:to>
+                    </bpel:copy>
+                    <bpel:copy>
+                        <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                        <![CDATA["Hace buen tiempo ( clima soleado ) en el estadio."]]>
+                        </bpel:from>
+                        <bpel:to part="payload" variable="output">
+                            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:result]]></bpel:query>
+                        </bpel:to>
+                    </bpel:copy>
+                </bpel:assign>
+                <bpel:reply name="respuestaSi" partnerLink="client" portType="tns:EstadioInfoProceso" operation="process" variable="output" />
+            </bpel:sequence>
+            <bpel:else>
+                <bpel:sequence>
+                    <bpel:assign validate="no" name="AssignMalClima">
+                        <bpel:copy>
+                            <bpel:from><bpel:literal><tns:EstadioInfoProcesoResponse xmlns:tns="http://proyectosd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tns:result>tns:result</tns:result>
+</tns:EstadioInfoProcesoResponse>
+</bpel:literal></bpel:from>
+                            <bpel:to variable="output" part="payload"></bpel:to>
+                        </bpel:copy>
+                        <bpel:copy>
+                            <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                <![CDATA["No hace buen tiempo en el estadio o no se ha podido obtener información."]]>
+                            </bpel:from>
+                            <bpel:to part="payload" variable="output">
+                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:result]]></bpel:query>
+                            </bpel:to>
+                        </bpel:copy>
+                    </bpel:assign>
+                    <bpel:reply name="respuestaNo" partnerLink="client" operation="process" portType="tns:EstadioInfoProceso" variable="output"></bpel:reply>
+                </bpel:sequence>
+            </bpel:else>
+        </bpel:if>
+        
     </bpel:sequence>
 </bpel:process>
 
