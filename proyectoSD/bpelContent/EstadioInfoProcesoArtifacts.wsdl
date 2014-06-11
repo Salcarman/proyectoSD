@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://proyectosd" xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop" xmlns:wsdl="http://footballpool.dataaccess.eu" xmlns:wsdl1="http://www.webserviceX.NET" name="EstadioInfoProceso" targetNamespace="http://proyectosd">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="EstadioInfoPLT">
+    <plnk:role name="EstadioInfoPLRole" portType="wsdl:InfoSoapType"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="GlobalWeatherPL">
+    <plnk:role name="GlobalWeatherPLRole" portType="wsdl1:GlobalWeatherSoap"/>
+  </plnk:partnerLinkType>
+    <import location="estadios.wsdl" namespace="http://footballpool.dataaccess.eu"/>
+    <import location="globalweather.wsdl" namespace="http://www.webserviceX.NET"/>
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://proyectosd">
+
+            <element name="EstadioInfoProcesoRequest">
+                <complexType>
+                    <sequence>
+                    	<element name="estadio" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="EstadioInfoProcesoResponse">
+                <complexType>
+                    <sequence>
+                        <element name="result" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="EstadioInfoProcesoRequestMessage">
+        <part element="tns:EstadioInfoProcesoRequest" name="payload"/>
+    </message>
+    <message name="EstadioInfoProcesoResponseMessage">
+        <part element="tns:EstadioInfoProcesoResponse" name="payload"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the EstadioInfoProceso BPEL process -->
+    <portType name="EstadioInfoProceso">
+        <operation name="process">
+            <input message="tns:EstadioInfoProcesoRequestMessage"/>
+            <output message="tns:EstadioInfoProcesoResponseMessage"/>
+        </operation>
+    </portType>   
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="EstadioInfoProceso">
+        <plnk:role name="EstadioInfoProcesoProvider" portType="tns:EstadioInfoProceso"/>
+    </plnk:partnerLinkType>
+    
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="EstadioInfoProcesoBinding" type="tns:EstadioInfoProceso">
+    	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    	<operation name="process">
+    		<soap:operation soapAction="http://proyectosd/process"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    </binding>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="EstadioInfoProcesoService">
+    	<port binding="tns:EstadioInfoProcesoBinding" name="EstadioInfoProcesoPort">
+    		<soap:address location="http://localhost:8080/ode/processes/EstadioInfoProceso"/>
+    	</port>
+    </service>
+</definitions>
