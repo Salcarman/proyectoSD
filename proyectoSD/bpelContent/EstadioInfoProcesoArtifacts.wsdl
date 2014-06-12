@@ -29,7 +29,8 @@
             <element name="EstadioInfoProcesoResponse">
                 <complexType>
                     <sequence>
-                        <element name="result" type="string"/>
+                    	<element name="result" type="string" />
+                    	<element name="tiempo" type="string"></element>
                     </sequence>
                 </complexType>
             </element>

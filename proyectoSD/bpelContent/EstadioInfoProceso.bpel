@@ -153,19 +153,57 @@
             <bpel:condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[contains(string($resultado), "clear")]]></bpel:condition>
             <bpel:sequence>
                 <bpel:assign validate="no" name="AssignBuenClima">
+                    
+                    
+                    
                     <bpel:copy>
                         <bpel:from><bpel:literal><tns:EstadioInfoProcesoResponse xmlns:tns="http://proyectosd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tns:result>tns:result</tns:result>
+  <tns:tiempo>tns:tiempo</tns:tiempo>
 </tns:EstadioInfoProcesoResponse>
 </bpel:literal></bpel:from>
                         <bpel:to variable="output" part="payload"></bpel:to>
                     </bpel:copy>
                     <bpel:copy>
-                        <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA["Hace buen tiempo ( clima soleado ) en el estadio."]]>
+                        <bpel:from part="parameters" variable="GlobalWeatherResponse">
+                            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns0:GetWeatherResult]]></bpel:query>
                         </bpel:from>
                         <bpel:to part="payload" variable="output">
                             <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:result]]></bpel:query>
+                        </bpel:to>
+                    </bpel:copy>
+                    <bpel:copy>
+                        <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            <![CDATA["El tiempo está soleado."]]>
+                        </bpel:from>
+                        <bpel:to part="payload" variable="output">
+                            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:tiempo]]></bpel:query>
                         </bpel:to>
                     </bpel:copy>
                 </bpel:assign>
@@ -174,183 +212,42 @@
             <bpel:else>
                 <bpel:sequence>
                     <bpel:assign validate="no" name="AssignMalClima">
+                        
+                        
+                        
+                        
+                        
                         <bpel:copy>
                             <bpel:from><bpel:literal><tns:EstadioInfoProcesoResponse xmlns:tns="http://proyectosd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <tns:result>tns:result</tns:result>
+  <tns:tiempo>tns:tiempo</tns:tiempo>
 </tns:EstadioInfoProcesoResponse>
 </bpel:literal></bpel:from>
                             <bpel:to variable="output" part="payload"></bpel:to>
                         </bpel:copy>
                         <bpel:copy>
                             <bpel:from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                <![CDATA["No hace buen tiempo en el estadio o no se ha podido obtener información."]]>
+                                <![CDATA["No está el tiempo soleado."]]>
+                            </bpel:from>
+                            <bpel:to part="payload" variable="output">
+                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                                    <![CDATA[tns:tiempo]]>
+                                </bpel:query>
+                            </bpel:to>
+                        </bpel:copy>
+                        <bpel:copy>
+                            <bpel:from part="parameters" variable="GlobalWeatherResponse">
+                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns0:GetWeatherResult]]></bpel:query>
                             </bpel:from>
                             <bpel:to part="payload" variable="output">
                                 <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:result]]></bpel:query>
                             </bpel:to>
                         </bpel:copy>
                     </bpel:assign>
+                    
                     <bpel:reply name="respuestaNo" partnerLink="client" operation="process" portType="tns:EstadioInfoProceso" variable="output"></bpel:reply>
+                    
+                    
                 </bpel:sequence>
             </bpel:else>
         </bpel:if>
